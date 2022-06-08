@@ -23,7 +23,40 @@ describe("sensors routes", () => {
             temperature: 2,
           });
         })
-        .finally(() => done());
+        .finally(done);
+    });
+  });
+
+  describe("[GET] /v1/sensors/temperature", () => {
+    it("should fetch temperature data", (done) => {
+      jest.spyOn(SensorsService, "getTemperature").mockResolvedValue({
+        id: "1",
+        temperature: 2,
+      });
+      request(app)
+        .get("/v1/sensors/temperature?ids[]=1")
+        .expect(200)
+        .then((response) => {
+          expect(response.body).toStrictEqual([
+            {
+              id: "1",
+              temperature: 2,
+            },
+          ]);
+        })
+        .finally(done);
+    });
+
+    it("should return an error on missing ids", (done) => {
+      request(app)
+        .get("/v1/sensors/temperature")
+        .expect(400)
+        .then((response) => {
+          expect(response.body).toStrictEqual({
+            errors: [{ location: "query", msg: "Missing ids", param: "ids" }],
+          });
+        })
+        .finally(done);
     });
   });
 });
